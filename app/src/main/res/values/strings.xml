@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TOKI</string>
+    <string name="widget_clock_description">秒まで表示する時計</string>
+</resources>

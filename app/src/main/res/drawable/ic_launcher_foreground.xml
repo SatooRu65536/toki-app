@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 時計マーク。主要部分は中央66dpのセーフゾーン内に収めている -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 文字盤 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:strokeColor="#FFFF9F0A"
+        android:strokeWidth="5"
+        android:pathData="M54,54m-27,0a27,27 0,1 1,54 0a27,27 0,1 1,-54 0" />
+    <!-- 目盛り(12時・3時・6時・9時) -->
+    <path
+        android:strokeColor="#FF8E8E93"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M54,32.5L54,35.5M75.5,54L72.5,54M54,75.5L54,72.5M32.5,54L35.5,54" />
+    <!-- 長針(12時)・短針(3時方向) -->
+    <path
+        android:strokeColor="#FF1C1C1E"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,54L54,39" />
+    <path
+        android:strokeColor="#FFFF9F0A"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,54L65,60" />
+    <!-- 中心 -->
+    <path
+        android:fillColor="#FF1C1C1E"
+        android:pathData="M54,54m-3,0a3,3 0,1 1,6 0a3,3 0,1 1,-6 0" />
+</vector>
