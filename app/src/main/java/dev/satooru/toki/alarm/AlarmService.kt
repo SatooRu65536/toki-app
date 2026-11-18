@@ -5,8 +5,10 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.media.AudioAttributes
 import android.media.MediaPlayer
@@ -18,6 +20,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import dev.satooru.toki.R
 import dev.satooru.toki.data.Alarm
 import dev.satooru.toki.data.AlarmRepository
@@ -36,6 +39,14 @@ class AlarmService : Service() {
         val a = AlarmRepository.get(currentId)
         endRinging(snooze = a?.snooze == true)
     }
+
+    /** 電源ボタン押下による画面消灯を検知して停止する */
+    private val screenOffReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (currentId != -1) endRinging(snooze = true)
+        }
+    }
+    private var screenOffRegistered = false
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -83,6 +94,20 @@ class AlarmService : Service() {
         ringingId.value = id
         startPlayback(alarm)
         handler.postDelayed(timeoutRunnable, RING_TIMEOUT_MS)
+        if (!screenOffRegistered) {
+            ContextCompat.registerReceiver(
+                this, screenOffReceiver, IntentFilter(Intent.ACTION_SCREEN_OFF),
+                ContextCompat.RECEIVER_NOT_EXPORTED,
+            )
+            screenOffRegistered = true
+        }
+    }
+
+    private fun unregisterScreenOff() {
+        if (screenOffRegistered) {
+            runCatching { unregisterReceiver(screenOffReceiver) }
+            screenOffRegistered = false
+        }
     }
 
     /** ユーザー操作または自動タイムアウトで鳴動を終える */
@@ -91,6 +116,7 @@ class AlarmService : Service() {
         if (id != -1) finishAlarmState(id, snooze)
         stopPlayback()
         handler.removeCallbacks(timeoutRunnable)
+        unregisterScreenOff()
         currentId = -1
         ringingId.value = null
         stopForegroundCompat()
@@ -227,6 +253,7 @@ class AlarmService : Service() {
 
     override fun onDestroy() {
         handler.removeCallbacks(timeoutRunnable)
+        unregisterScreenOff()
         stopPlayback()
         ringingId.value = null
         super.onDestroy()

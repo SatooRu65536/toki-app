@@ -3,6 +3,7 @@ package dev.satooru.toki.alarm
 import android.app.KeyguardManager
 import android.os.Build
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -41,6 +42,15 @@ import java.time.LocalTime
 
 /** ロック画面上にも表示される鳴動画面 */
 class RingingActivity : ComponentActivity() {
+    /** 音量ボタンで鳴動をスヌーズする(電源ボタンは AlarmService が画面消灯で検知) */
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            startService(AlarmService.snoozeIntent(this))
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AlarmRepository.init(this)
